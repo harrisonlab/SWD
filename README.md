@@ -219,16 +219,15 @@ Organism=$(echo $TrimReads1 | rev | cut -f3 -d '/' | rev)
 Strain=$(echo $TrimReads1 | rev | cut -f2 -d '/' | rev)
 echo $TrimReads
 OutDir=assembly/canu-1.6/$Organism/"$Strain"
-ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/canu
-qsub $ProgDir/sub_canu_correction_2lib.sh $TrimReads1 $TrimReads2 220m $Strain $OutDir
-
+ProgDir=/home/armita/git_repos/emr_repos/scripts/SWD/scripts
+qsub $ProgDir/sub_canu_correct_SWD.sh $TrimReads1 $TrimReads2 220m $Strain $OutDir
 ```
 
 
-### Assembbly using SMARTdenovo
+### Assembly using SMARTdenovo
 
 ```bash
-for CorrectedReads in $(ls assembly/canu-1.6/*/*/*.trimmedReads.fasta.gz | grep 'statice'); do
+for CorrectedReads in $(ls assembly/canu-1.6/*/*/*.trimmedReads.fasta.gz ); do
 Organism=$(echo $CorrectedReads | rev | cut -f3 -d '/' | rev)
 Strain=$(echo $CorrectedReads | rev | cut -f2 -d '/' | rev)
 Prefix="$Strain"_smartdenovo
