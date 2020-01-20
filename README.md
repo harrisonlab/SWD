@@ -150,7 +150,7 @@ done
 
 For Minion data:
 ```bash
-for RawData in $(ls qc_dna/minion/*/*/*q.gz); do
+for RawData in $(ls raw_dna/minion/*/*/*q.gz); do
 echo $RawData;
 ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/dna_qc;
 GenomeSz=220
@@ -160,7 +160,7 @@ done
 ```
 
 ```bash
-  for StrainDir in $(ls -d qc_dna/minion/*/*); do
+  for StrainDir in $(ls -d raw_dna/minion/*/*); do
     Strain=$(basename $StrainDir)
     printf "$Strain\t"
     for File in $(ls $StrainDir/*.txt); do
@@ -171,7 +171,7 @@ done
 ```
 MinION coverage was:
 ```
-
+WT3	56.07
 ```
 <!--
 For Miseq data:
@@ -238,10 +238,10 @@ done
 ```
 
 
-Quast and busco were run to assess the effects of racon on assembly quality:
+Quast and busco were run to assess assembly quality:
 
 ```bash
-for Assembly in $(ls assembly/SMARTdenovo/*/*/*.dmo.lay.utg | grep 'statice'); do
+for Assembly in $(ls assembly/SMARTdenovo/*/*/*.dmo.lay.utg); do
   Strain=$(echo $Assembly | rev | cut -f2 -d '/' | rev)
   Organism=$(echo $Assembly | rev | cut -f3 -d '/' | rev)  
 	echo "$Organism - $Strain"
@@ -249,7 +249,7 @@ for Assembly in $(ls assembly/SMARTdenovo/*/*/*.dmo.lay.utg | grep 'statice'); d
 	ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc/quast
   qsub $ProgDir/sub_quast.sh $Assembly $OutDir
 	OutDir=gene_pred/busco/$Organism/$Strain/assembly
-	BuscoDB=$(ls -d /home/groups/harrisonlab/dbBusco/sordariomyceta_odb9)
+	BuscoDB=$(ls -d /home/groups/harrisonlab/dbBusco/diptera_odb9)
 	ProgDir=/home/armita/git_repos/emr_repos/tools/gene_prediction/busco
 	qsub $ProgDir/sub_busco3.sh $Assembly $BuscoDB $OutDir
 done
@@ -259,22 +259,23 @@ done
 Error correction using racon:
 
 ```bash
-for Assembly in $(ls assembly/SMARTdenovo/*/*/*.dmo.lay.utg | grep 'statice'); do
+for Assembly in $(ls assembly/SMARTdenovo/*/*/*.dmo.lay.utg); do
 Strain=$(echo $Assembly | rev | cut -f2 -d '/' | rev)
 Organism=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
 echo "$Organism - $Strain"
-ReadsFq=$(ls qc_dna/minion/*/$Strain/*q.gz)
+ReadsFq1=$(ls qc_dna/minion/*/$Strain/*q.gz | head -n1 | tail -n1)
+ReadsFq2=$(ls qc_dna/minion/*/$Strain/*q.gz | head -n2 | tail -n1)
 Iterations=10
 OutDir=$(dirname $Assembly)"/racon_$Iterations"
 ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/racon
-qsub $ProgDir/sub_racon.sh $Assembly $ReadsFq $Iterations $OutDir
+qsub $ProgDir/sub_racon_2libs.sh $Assembly $ReadsFq1 $ReadsFq2 $Iterations $OutDir
 done
 ```
 
 
 ```bash
 ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc/quast
-for Assembly in $(ls assembly/SMARTdenovo/*/*/racon_10/*.fasta | grep 'round_10' | grep 'statice'); do
+for Assembly in $(ls assembly/SMARTdenovo/*/*/racon_10/*.fasta | grep 'round_10'); do
 OutDir=$(dirname $Assembly)
 echo "" > tmp.txt
 ProgDir=~/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc/remove_contaminants
@@ -295,7 +296,7 @@ done
 ```
 
 ```bash
-for Assembly in $(ls assembly/SMARTdenovo/F.*/*/racon*/*.fasta | grep 'statice'); do
+for Assembly in $(ls assembly/SMARTdenovo/F.*/*/racon*/*.fasta); do
 Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
 Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
 echo "$Organism - $Strain"
@@ -319,22 +320,9 @@ printf "$FileName\t$Complete\t$Duplicated\t$Fragmented\t$Missing\t$Total\n"
 done
 ```
 
-
+<!--
 ## Nanopolish
 
-
-<!--
-```bash
-for Assembly in $(ls assembly/SMARTdenovo/*/*/racon_10/racon_min_500bp_renamed.fasta | grep 'Stat10'); do
-Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
-echo "$Organism - $Strain"
-ReadsFq=$(ls qc_dna/minion/*/$Strain/*q.gz)
-OutDir=qc_dna/minion/$Organism/$Strain/appended
-mkdir $OutDir
-cat $ReadsFq > $OutDir/${Strain}_appended.fq.gz
-done
-``` -->
 
 For Stat10
 ```bash
@@ -576,3 +564,4 @@ Total=$(cat $File | grep "Total" | cut -f2)
 printf "$FileName\t$Complete\t$Duplicated\t$Fragmented\t$Missing\t$Total\n"
 done
 ```
+-->
