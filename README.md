@@ -287,7 +287,7 @@ Quast and busco were run to assess the effects of racon on assembly quality:
 
 ```bash
 ProgDir=/home/armita/git_repos/emr_repos/tools/seq_tools/assemblers/assembly_qc/quast
-for Assembly in $(ls assembly/SMARTdenovo/*/*/racon_10/racon_min_500bp_renamed.fasta | grep 'statice'); do
+for Assembly in $(ls assembly/SMARTdenovo/*/*/racon_10/racon_min_500bp_renamed.fasta); do
 Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
 Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)  
 OutDir=$(dirname $Assembly)
@@ -296,7 +296,7 @@ done
 ```
 
 ```bash
-for Assembly in $(ls assembly/SMARTdenovo/F.*/*/racon*/*.fasta); do
+for Assembly in $(ls assembly/SMARTdenovo/*/*/racon*/*.fasta); do
 Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
 Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
 echo "$Organism - $Strain"
@@ -320,47 +320,35 @@ printf "$FileName\t$Complete\t$Duplicated\t$Fragmented\t$Missing\t$Total\n"
 done
 ```
 
-<!--
+
 ## Nanopolish
 
 
-For Stat10
 ```bash
-# for Assembly in $(ls assembly/SMARTdenovo/*/*/racon_10/racon_min_500bp_renamed.fasta | grep -e 'Stat10'); do
-# Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
-# Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
-# echo "$Organism - $Strain"
-# # Step 1 extract reads as a .fq file which contain info on the location of the fast5 files
-# # Note - the full path from home must be used
-# ReadDir=raw_dna/nanopolish/$Organism/$Strain
-# mkdir -p $ReadDir
-# ReadsFq=$(ls raw_dna/minion/*/$Strain/*.fastq.gz)
-# Fast5Dir=$(ls -d /data/seq_data/minion/2018/20180504_Statice10-180501/Statice10-180501/GA10000/reads)
-# nanopolish index -v -d $Fast5Dir $ReadsFq
-# done
 
-for Assembly in $(ls assembly/SMARTdenovo/*/*/racon_10/racon_min_500bp_renamed.fasta | grep -e 'Stat10'); do
+for Assembly in $(ls assembly/SMARTdenovo/*/*/racon_10/racon_min_500bp_renamed.fasta); do
 Strain=$(echo $Assembly | rev | cut -f3 -d '/' | rev)
 Organism=$(echo $Assembly | rev | cut -f4 -d '/' | rev)
 echo "$Organism - $Strain"
 # Step 1 extract reads as a .fq file which contain info on the location of the fast5 files
 # Note - the full path from home must be used
 
-CurDir=$PWD
-ScratchDir=/data/scratch/nanopore_tmp_data/Alternaria/albacore_v2.2.7
-
-ReadDir=/data2/scratch2/armita/FoN/raw_dna/nanopolish/$Organism/$Strain
-mkdir -p $ReadDir
-cd $ReadDir
+# Extract archived reads if required:
+# CurDir=$PWD
+# ScratchDir=/data/scratch/nanopore_tmp_data/20190122_drosophila/albacore
+# ReadDir=/data2/scratch2/armita/FoN/raw_dna/nanopolish/$Organism/$Strain
+# mkdir -p $ReadDir
+# cd $ReadDir
 # tar -zxvf $ScratchDir/Stat10_2018-05-15_albacore_v2.2.7.tar.gz
-cd $CurDir
-Fast5Dir=$(ls -d /data2/scratch2/armita/FoN/raw_dna/nanopolish/F.oxysporum_fsp_statice/Stat10/home/nanopore/FoStatice_06-09-18/F.oxysporum_fsp_statice/Stat10/2018-05-15/albacore_v2.2.7/workspace/pass/unclassified/)
+# cd $CurDir
+Fast5Dir1=$(ls -d /data/seq_data/minion/2018/Dsuzukii-1/GA10000)
+Fast5Dir2=$(ls -d /data/seq_data/minion/2018/Dsuzukii-2/GA10000)
 
 ReadsFq=raw_dna/minion/$Organism/$Strain/${Strain}_appended.fastq.gz
-cat $Fast5Dir/*.fastq > $ReadsFq
+cat $Fast5Dir1/*.fastq  $Fast5Dir2/*.fastq > $ReadsFq
 
 
-nanopolish index -d $Fast5Dir $ReadsFq
+nanopolish index -d $Fast5Dir1/reads -d $Fast5Dir2/reads $ReadsFq
 
 OutDir=$(dirname $Assembly)/nanopolish
 mkdir -p $OutDir
@@ -497,7 +485,7 @@ rm -r /home/groups/harrisonlab/project_files/fusarium_ex_narcissus/home
 # FON139
 rm -r raw_dna/nanopolish/F.oxysporum_fsp_narcissi/FON139/home
 ```
-
+<!--
 ### Pilon assembly correction
 
 Assemblies were polished using Pilon
